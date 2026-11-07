@@ -1,0 +1,20 @@
+# textdomain: vl_recruits
+Recruit=Rekrut
+@1's recruit=Rekrut von @1
+This recruit belongs to @1.=Dieser Rekrut gehört @1.
+Recruit holds position.=Rekrut hält die Stellung.
+Recruit follows you.=Rekrut folgt dir.
+One of your recruits has died.=Einer deiner Rekruten ist gestorben.
+Children cannot be recruited.=Kinder können nicht angeheuert werden.
+This villager is busy trading.=Dieser Dorfbewohner handelt gerade.
+You already have @1 recruits (maximum).=Du hast schon @1 Rekruten (Maximum).
+Hiring costs @1 emeralds.=Anheuern kostet @1 Smaragde.
+The villager joined you as a recruit (@1/@2).=Der Dorfbewohner ist jetzt dein Rekrut (@1/@2).
+@1 recruits follow you.=@1 Rekruten folgen dir.
+@1 recruits hold their position.=@1 Rekruten halten die Stellung.
+Recruits: @1 total, @2 loaded, @3 nearby.=Rekruten: @1 insgesamt, @2 geladen, @3 in der Nähe.
+Look at one of your recruits to dismiss it.=Schau einen deiner Rekruten an, um ihn zu entlassen.
+The recruit was dismissed and is a villager again.=Der Rekrut ist entlassen und wieder ein Dorfbewohner.
+Command your recruits=Befehle an deine Rekruten
+Only for players in the game.=Nur für Spieler im Spiel.
+Usage: /rekruten folgen | bleiben | liste | entlassen=Verwendung: /rekruten folgen | bleiben | liste | entlassen
