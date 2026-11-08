@@ -1,7 +1,7 @@
 -- The recruit mob. Built on mcl_mobs and VoxeLibre's player model
 -- (mcl_armor_character.b3d), which has an armor layer and a Wield_Item bone.
 -- Skin: a plain mcl_skins outfit with the hired villager's head on top.
-local R = vl_recruits
+local R = village_recruits
 local S = R.S
 local mob_class = mcl_mobs.mob_class
 
@@ -35,7 +35,7 @@ end
 -- the same place as the player head; the mask keeps the top 8x8 head part.
 function R.make_skin(villager_skin)
 	villager_skin = villager_skin or DEFAULT_VILLAGER_SKIN
-	return "(" .. get_body() .. ")^((" .. villager_skin .. ")^[mask:vl_recruits_head_mask.png)"
+	return "(" .. get_body() .. ")^((" .. villager_skin .. ")^[mask:village_recruits_head_mask.png)"
 end
 
 local function owner_player(self)
@@ -274,6 +274,10 @@ mcl_mobs.register_mob(R.ENTITY, {
 })
 
 local def = core.registered_entities[R.ENTITY]
+
+-- Until 2026-11 the mod was called "vl_recruits". Recruits saved under the old
+-- entity name are converted on load (keeps owner, orders and equipment).
+mcl_mobs.register_conversion(":vl_recruits:recruit", R.ENTITY)
 
 -- Never attack the owner or the owner's other recruits, even when another
 -- player made this recruit aggressive (_aggro makes mcl_mobs target players).

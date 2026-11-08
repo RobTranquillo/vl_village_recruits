@@ -1,7 +1,7 @@
--- Startup self test (enable with vl_recruits_selftest = true).
+-- Startup self test (enable with village_recruits_selftest = true).
 -- Runs headless on a dedicated server: hires a villager for a fake owner,
 -- checks persistence via staticdata, dismisses it again, then shuts down.
-local R = vl_recruits
+local R = village_recruits
 local OWNER = "selftest_owner"
 local POS = vector.new(0, 0, 0)
 local results, failed = {}, 0
@@ -12,8 +12,8 @@ local function check(cond, msg)
 end
 
 local function finish()
-	for _, line in ipairs(results) do core.log("action", "[vl_recruits selftest] " .. line) end
-	core.log("action", ("[vl_recruits selftest] DONE: %d checks, %d failed"):format(#results, failed))
+	for _, line in ipairs(results) do core.log("action", "[village_recruits selftest] " .. line) end
+	core.log("action", ("[village_recruits selftest] DONE: %d checks, %d failed"):format(#results, failed))
 	core.request_shutdown("selftest finished", false, 0)
 end
 
@@ -50,7 +50,7 @@ local function run()
 	if not r then return finish() end
 	check(r.owner == OWNER and r.order == "follow", "owner and order set")
 	check(R.count(OWNER) == 1, "registry counts 1 recruit")
-	check(r.base_texture[1]:find("vl_recruits_head_mask.png", 1, true) ~= nil, "skin uses head mask")
+	check(r.base_texture[1]:find("village_recruits_head_mask.png", 1, true) ~= nil, "skin uses head mask")
 
 	-- Jumping: on flat open ground the following recruit must not hop.
 	for x = -3, 3 do
@@ -111,8 +111,8 @@ local function run()
 		check(r2._shield_obj and r2._shield_obj:get_attach() == r2.object, "shield shown on the arm")
 		r2.object:set_yaw(0) -- facing +z
 		local here = r2.object:get_pos()
-		local front = core.add_entity(vector.offset(here, 0, 0, 2), "vl_recruits:wield")
-		local back = core.add_entity(vector.offset(here, 0, 0, -2), "vl_recruits:wield")
+		local front = core.add_entity(vector.offset(here, 0, 0, 2), "village_recruits:wield")
+		local back = core.add_entity(vector.offset(here, 0, 0, -2), "village_recruits:wield")
 		local caps = {full_punch_interval = 1, damage_groups = {fleshy = 10}}
 		local cf = R.shield_filter(r2, front, caps)
 		local cb = R.shield_filter(r2, back, caps)
@@ -203,6 +203,24 @@ local function run()
 			if ent.name == R.VILLAGER and ent._profession == "farmer" then back = ent end
 		end
 		check(back ~= nil, "villager restored with profession")
+	end
+	-- Recruits saved under the old mod name are converted on load.
+	local old = core.add_entity(pos, "vl_recruits:recruit", core.serialize({
+		owner = OWNER, _recruit_id = "old-recruit-1", order = "stand",
+		_weapon = "mcl_tools:sword_iron",
+	}))
+	local converted
+	for _, ent in pairs(core.luaentities) do
+		if ent.name == R.ENTITY and ent._recruit_id == "old-recruit-1" then converted = ent end
+	end
+	check(old == nil or not old:get_pos(), "old vl_recruits entity replaced")
+	check(converted and converted.owner == OWNER and converted.order == "stand",
+		"old recruit converted with owner and order")
+	check(converted and converted.damage > R.BASE_DAMAGE, "old recruit keeps its weapon")
+	check(R.count(OWNER) == 1, "converted recruit re-registered")
+	if converted then
+		R.unregister(OWNER, converted._recruit_id)
+		converted.object:remove()
 	end
 	finish()
 end

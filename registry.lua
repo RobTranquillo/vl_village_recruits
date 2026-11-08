@@ -1,6 +1,6 @@
 -- Which recruits belong to whom. Persisted in mod storage as
 -- "owner:<player>" -> serialized set of recruit ids.
-local R = vl_recruits
+local R = village_recruits
 
 local function key(owner) return "owner:" .. owner end
 
@@ -23,7 +23,9 @@ function R.count(owner)
 end
 
 function R.register(owner, id)
+	if not owner or owner == "" or not id then return end
 	local set = load(owner)
+	if set[id] then return end
 	set[id] = true
 	save(owner, set)
 end

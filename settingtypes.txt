@@ -1,11 +1,11 @@
 # Number of emeralds needed to hire a villager (free in creative mode).
-vl_recruits_cost (Hiring cost in emeralds) int 3 0 64
+village_recruits_cost (Hiring cost in emeralds) int 3 0 64
 
 # Maximum number of recruits a single player may own.
-vl_recruits_max_per_player (Max recruits per player) int 10 1 100
+village_recruits_max_per_player (Max recruits per player) int 10 1 100
 
 # Following recruits further away than this are teleported to their owner.
-vl_recruits_teleport_distance (Teleport distance) int 16 6 64
+village_recruits_teleport_distance (Teleport distance) int 16 6 64
 
 # Runs a self test after server start and logs the result (for development).
-vl_recruits_selftest (Run self test on startup) bool false
+village_recruits_selftest (Run self test on startup) bool false

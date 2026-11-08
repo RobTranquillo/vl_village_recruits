@@ -1,6 +1,6 @@
 -- Hiring: sneak + right-click a villager while holding emeralds.
 -- Without sneaking the villager's normal trading menu opens as usual.
-local R = vl_recruits
+local R = village_recruits
 local S = R.S
 
 local EMERALD = "mcl_core:emerald"
@@ -90,7 +90,7 @@ end
 
 core.register_on_mods_loaded(function()
 	local def = core.registered_entities[R.VILLAGER]
-	assert(def, "vl_recruits: villager entity " .. R.VILLAGER .. " not found")
+	assert(def, "village_recruits: villager entity " .. R.VILLAGER .. " not found")
 	local original = def.on_rightclick
 	def.on_rightclick = function(self, clicker)
 		if clicker and clicker:is_player()

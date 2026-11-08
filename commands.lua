@@ -1,5 +1,5 @@
 -- Chat commands: /rekruten <folgen|bleiben|liste|entlassen>
-local R = vl_recruits
+local R = village_recruits
 local S = R.S
 
 local RADIUS = 32

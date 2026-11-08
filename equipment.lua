@@ -1,11 +1,11 @@
 -- Recruit equipment. Each loaded recruit gets a detached inventory
--- "vl_recruits_<id>" with these lists (field = saved copy in staticdata):
+-- "village_recruits_<id>" with these lists (field = saved copy in staticdata):
 --   armor  5 slots (mcl_armor uses 2..5)  self._armor  {[2..5] = itemstring}
 --   weapon 1 slot  (sword / axe)          self._weapon itemstring
 --   shield 1 slot                         self._shield itemstring
 --   totem  1 slot  (totem of undying)     self._totem  itemstring
 --   food   3 slots (stacks)               self._food   {[1..3] = itemstring}
-local R = vl_recruits
+local R = village_recruits
 local S = R.S
 local F = core.formspec_escape
 
@@ -22,10 +22,10 @@ local SINGLE_LISTS = {"weapon", "shield", "totem"}
 
 local loaded = {} -- recruit id -> luaentity
 
-local function inv_name(id) return "vl_recruits_" .. id end
+local function inv_name(id) return "village_recruits_" .. id end
 
 local function recruit_for(inv)
-	local id = inv:get_location().name:match("^vl_recruits_(.+)$")
+	local id = inv:get_location().name:match("^village_recruits_(.+)$")
 	local self = id and loaded[id]
 	if self and self.object:get_pos() then return self end
 end
@@ -133,7 +133,7 @@ local function update_weapon(self)
 		remove_model(self, "_wield_obj")
 		return
 	end
-	local wield = attach_model(self, "_wield_obj", "vl_recruits:wield", "Wield_Item")
+	local wield = attach_model(self, "_wield_obj", "village_recruits:wield", "Wield_Item")
 	if not wield then return end
 	wield:set_properties({wield_item = stack:get_name()})
 	-- Same hand pose the player model uses for tool-like items (mcl_playerplus).
@@ -167,7 +167,7 @@ local function update_shield(self)
 		return
 	end
 	-- Resting position of an off-hand shield on the player model (mcl_shields).
-	local obj = attach_model(self, "_shield_obj", "vl_recruits:shield", "Arm_Left",
+	local obj = attach_model(self, "_shield_obj", "village_recruits:shield", "Arm_Left",
 		vector.new(-3, -5, 0), vector.new(0, 180, 0))
 	if obj then obj:set_properties({textures = {shield_texture(stack)}}) end
 end
@@ -185,13 +185,13 @@ local function attached_model(def)
 	}
 end
 
-core.register_entity("vl_recruits:wield", attached_model({
+core.register_entity("village_recruits:wield", attached_model({
 	visual = "wielditem",
 	visual_size = {x = 0.21, y = 0.21},
 	wield_item = "",
 }))
 
-core.register_entity("vl_recruits:shield", attached_model({
+core.register_entity("village_recruits:shield", attached_model({
 	visual = "mesh",
 	mesh = "mcl_shield.obj",
 	textures = {"mcl_shield_base_nopattern.png"},
@@ -294,6 +294,9 @@ function R.equipment_activate(self)
 	end
 	self.inventory = inv
 	loaded[id] = self
+	-- Re-registers recruits whose registry entry was lost (e.g. converted
+	-- from the old mod name, which had its own mod storage).
+	R.register(self.owner, id)
 
 	mcl_armor.update(self.object)
 	update_weapon(self)
@@ -539,6 +542,6 @@ end
 function R.show_equipment(self, player)
 	local fs = R.equipment_formspec(self)
 	if fs then
-		core.show_formspec(player:get_player_name(), "vl_recruits:equipment", fs)
+		core.show_formspec(player:get_player_name(), "village_recruits:equipment", fs)
 	end
 end

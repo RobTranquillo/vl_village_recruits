@@ -187,3 +187,9 @@ armor_stand_arms, candles_3d, copper_golem, mcl_bronze_stuff, mcl_copper_stuff, 
 - Fehler behoben: Rekruten sind dauernd gehüpft und deshalb nicht gefolgt. Ursache: `walk_chance = 0` schaltet in mcl_mobs die Prüfung „Block vor mir?“ in `do_jump` ab.
 - Selbsttest mit `tools/run_selftest.sh`: 49/49 bestanden.
 - **Offen:** Schild-Position am Arm und das Menü im Spiel prüfen. Fernkampf (Bogen, Armbrust, Pfeile) kommt in Phase 3.
+
+## Stand: Vorbereitung der Veröffentlichung (08.11.2026)
+- Umbenannt von `vl_recruits` in **`village_recruits`** („Village Recruits“), weil `vl_` das Präfix von VoxeLibre ist. Alte Rekruten (`vl_recruits:recruit`) werden beim Laden per `mcl_mobs.register_conversion` übernommen. Fehlende Einträge im Rekruten-Register trägt die Mod beim Aktivieren automatisch nach.
+- Repo umgebaut: Die Mod liegt jetzt im Hauptordner (`mod.conf` ganz oben). Plan, Notizen und Testskript liegen in `docs/` und kommen per `.gitattributes` nicht ins ContentDB-Paket.
+- Neu: `LICENSE` (MIT, mit Hinweisen zu KI-Unterstützung und VoxeLibre-Inhalten), `.cdb.json`, englische Angaben in `mod.conf` mit `supported_games = mineclone2`.
+- Englische Fassung dieses Plans: `docs/PLAN.md`.
