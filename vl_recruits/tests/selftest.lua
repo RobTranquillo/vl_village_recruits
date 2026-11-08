@@ -52,6 +52,23 @@ local function run()
 	check(R.count(OWNER) == 1, "registry counts 1 recruit")
 	check(r.base_texture[1]:find("vl_recruits_head_mask.png", 1, true) ~= nil, "skin uses head mask")
 
+	-- Jumping: on flat open ground the following recruit must not hop.
+	for x = -3, 3 do
+		for z = -3, 3 do
+			core.set_node(vector.offset(pos, x, -1, z), {name = "mcl_core:stone"})
+			core.set_node(vector.offset(pos, x, 0, z), {name = "air"})
+			core.set_node(vector.offset(pos, x, 1, z), {name = "air"})
+		end
+	end
+	r.object:set_pos(vector.offset(pos, 0, -0.49, 0)) -- feet on the stone
+	r.object:set_velocity(vector.zero())
+	check(r.order == "follow" and not r:do_jump(), "no jumping on flat ground while following")
+	core.set_node(vector.offset(pos, 0, 0, 1), {name = "mcl_core:stone"})
+	r.object:set_yaw(0) -- facing +z, towards the block
+	check(r:do_jump() == true, "jumps when a block is in front")
+	core.set_node(vector.offset(pos, 0, 0, 1), {name = "air"})
+	r.object:set_velocity(vector.zero())
+
 	R.set_order(r, "stand")
 	check(r.order == "stand" and r._guard_pos ~= nil, "stand order stores guard position")
 
@@ -89,6 +106,64 @@ local function run()
 			and given.back and given.back:get_name() == "mcl_armor:chestplate_iron",
 			"swapping armor returns the old piece")
 
+		-- Shield: blocks half of a frontal hit, nothing from behind, wears down.
+		check(R.give_item(r2, fake_player, ItemStack("mcl_shields:shield")), "recruit accepts a shield")
+		check(r2._shield_obj and r2._shield_obj:get_attach() == r2.object, "shield shown on the arm")
+		r2.object:set_yaw(0) -- facing +z
+		local here = r2.object:get_pos()
+		local front = core.add_entity(vector.offset(here, 0, 0, 2), "vl_recruits:wield")
+		local back = core.add_entity(vector.offset(here, 0, 0, -2), "vl_recruits:wield")
+		local caps = {full_punch_interval = 1, damage_groups = {fleshy = 10}}
+		local cf = R.shield_filter(r2, front, caps)
+		local cb = R.shield_filter(r2, back, caps)
+		check(cf.damage_groups.fleshy == 5, "shield blocks half from the front (" .. cf.damage_groups.fleshy .. ")")
+		check(cb.damage_groups.fleshy == 10, "shield does not block from behind")
+		check(ItemStack(r2._shield):get_wear() > 0, "shield wears when blocking")
+		front:remove(); back:remove()
+
+		-- Totem: fatal damage leaves the recruit alive with 1 HP, totem used up.
+		check(R.give_item(r2, fake_player, ItemStack("mcl_totems:totem")), "recruit accepts a totem")
+		r2.health = 0
+		r2:check_for_death("hit", {type = "punch"})
+		check(r2.health == 1 and r2.state ~= "die", "totem prevents death")
+		check(r2._totem == "", "totem is used up")
+
+		-- Food: rejects poison, stores bread, eats when hurt.
+		check(not R.give_item(r2, fake_player, ItemStack("mcl_mobitems:rotten_flesh")), "refuses rotten flesh")
+		check(R.give_item(r2, fake_player, ItemStack("mcl_farming:bread 5")), "recruit takes bread")
+		check(ItemStack(r2._food[1]):get_count() == 5, "5 bread in the food bag")
+		r2.health = 8
+		R.food_step(r2, 3)
+		check(r2.health > 8, "eats when hurt (health now " .. r2.health .. ")")
+		check(ItemStack(r2._food[1]):get_count() == 4, "one bread eaten")
+		r2.health = 20
+		R.food_step(r2, 3)
+		check(ItemStack(r2._food[1]):get_count() == 4, "does not eat at full health")
+
+		-- Menu layout: every slot grid lies inside the window, none overlap.
+		local fs = R.equipment_formspec(r2)
+		local w, h = fs:match("size%[([%d.]+),([%d.]+)%]")
+		w, h = tonumber(w), tonumber(h)
+		local boxes, inside = {}, true
+		for x, y, cols, rows in fs:gmatch("list%[[^;]+;[^;]+;([%d.]+),([%d.]+);(%d+),(%d+);") do
+			local b = {x = tonumber(x), y = tonumber(y)}
+			b.x2 = b.x + tonumber(cols) * 1.25 - 0.25
+			b.y2 = b.y + tonumber(rows) * 1.25 - 0.25
+			if b.x2 > w or b.y2 > h then inside = false end
+			boxes[#boxes + 1] = b
+		end
+		local overlap = false
+		for i = 1, #boxes do
+			for j = i + 1, #boxes do
+				local a, b = boxes[i], boxes[j]
+				if a.x < b.x2 and b.x < a.x2 and a.y < b.y2 and b.y < a.y2 then overlap = true end
+			end
+		end
+		check(#boxes == 7 and inside and not overlap,
+			("menu layout fits %sx%s, %d slot grids, no overlap"):format(w, h, #boxes))
+		check(h <= 9, "menu is compact (height " .. h .. " <= 9)")
+		check(fs:find("armor;0.375,1.2;4,1;1]", 1, true) ~= nil, "armor slots in one row")
+
 		-- Gear survives unload/reload.
 		local fleshy_before = r2.object:get_armor_groups().fleshy
 		local sd2 = r2:get_staticdata()
@@ -100,6 +175,8 @@ local function run()
 		check(r3 and r3._armor and r3._armor[3] == "mcl_armor:chestplate_diamond", "armor saved in staticdata")
 		check(r3 and r3.damage > R.BASE_DAMAGE, "weapon damage restored after reload")
 		check(r3 and r3._wield_obj ~= nil, "sword shown again after reload")
+		check(r3 and r3._shield_obj ~= nil and r3._shield ~= "", "shield restored after reload")
+		check(r3 and ItemStack(r3._food[1]):get_count() == 4, "food restored after reload")
 		r2 = r3
 	end
 
@@ -120,7 +197,7 @@ local function run()
 			local e = o:get_luaentity()
 			if e and e.name == "__builtin:item" then drops = drops + 1 end
 		end
-		check(drops >= 2, "gear dropped on dismiss (" .. drops .. " items)")
+		check(drops >= 4, "gear dropped on dismiss (" .. drops .. " items)")
 		local back
 		for _, ent in pairs(core.luaentities) do
 			if ent.name == R.VILLAGER and ent._profession == "farmer" then back = ent end

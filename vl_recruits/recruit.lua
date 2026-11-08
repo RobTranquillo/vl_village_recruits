@@ -134,6 +134,7 @@ end
 
 local function do_custom(self, dtime)
 	if not self.owner or self.owner == "" then return end
+	R.food_step(self, dtime)
 
 	if self.order == "follow" then
 		local player = owner_player(self)
@@ -279,6 +280,32 @@ local def = core.registered_entities[R.ENTITY]
 function def:do_attack(object)
 	if is_friend(self, object) then return end
 	return mob_class.do_attack(self, object)
+end
+
+-- mcl_mobs' do_jump skips its "is there a block in front of me?" check when
+-- walk_chance is 0, so with walk_chance = 0 (no random wandering) the recruit
+-- jumped on every step. Mid-air set_velocity is ignored, so it never walked.
+-- Run the check as if wandering were enabled.
+function def:do_jump()
+	local walk_chance = self.walk_chance
+	self.walk_chance = 1
+	local jumped = mob_class.do_jump(self)
+	self.walk_chance = walk_chance
+	return jumped
+end
+
+-- Shield: reduce damage of hits from the front before mcl_mobs applies it.
+function def:on_punch(hitter, tflp, tool_capabilities, dir, damage)
+	tool_capabilities = R.shield_filter(self, hitter, tool_capabilities)
+	return mob_class.on_punch(self, hitter, tflp, tool_capabilities, dir, damage)
+end
+
+-- Totem: survive a fatal hit once with 1 HP.
+function def:check_for_death(cause, cmi_cause, info)
+	if self.state ~= "die" and self.health and self.health <= 0 and R.use_totem(self) then
+		self.health = 1
+	end
+	return mob_class.check_for_death(self, cause, cmi_cause, info)
 end
 
 -- Hooks used by mcl_armor (mcl_util.get_inventory / mcl_armor.update).

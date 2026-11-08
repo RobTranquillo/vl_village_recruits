@@ -178,3 +178,12 @@ armor_stand_arms, candles_3d, copper_golem, mcl_bronze_stuff, mcl_copper_stuff, 
 - Rekruten aus Phase 1 werden beim Laden automatisch auf das neue Modell umgestellt.
 - Selbsttest: 28/28 bestanden.
 - **Offen:** Im Spiel prüfen: Optik (Kopf auf dem Spieler-Modell, Haltung des Schwerts), Animationen, Menü. Rüstung nutzt sich noch nicht ab. Essen und Schild kommen später.
+
+## Stand Phase 2, Teil 2: Schild, Totem, Essen (08.11.2026)
+- Neue Slots im Ausrüstungsmenü, alle in einer Reihe: Rüstung (4), Waffe, Schild, Totem, Essen (3). Das Menü ist 13,4 × 8,6 groß, dein Inventar steht zentriert darunter.
+- Schild: Am linken Arm sichtbar. Blockt 50 % des Schadens von vorne, auch bei Pfeilen. Ein Block mit mindestens 3 Schaden kostet Haltbarkeit (336 Blocks, Haltbarkeit-Verzauberung zählt mit).
+- Totem: Ein tödlicher Treffer lässt den Rekruten mit 1 Leben überleben. Dazu gibt es Regeneration II für 45 s, Partikel und Sound. Das Totem wird verbraucht.
+- Essen: Alle 2 s isst ein verletzter Rekrut einen Bissen, wenn das Essen nicht verschwendet wird oder er unter 50 % Leben hat. Geheilt wird so viel, wie das Essen satt macht (`eatable`). Giftiges Essen und Essen mit Behälter wird abgelehnt.
+- Fehler behoben: Rekruten sind dauernd gehüpft und deshalb nicht gefolgt. Ursache: `walk_chance = 0` schaltet in mcl_mobs die Prüfung „Block vor mir?“ in `do_jump` ab.
+- Selbsttest mit `tools/run_selftest.sh`: 49/49 bestanden.
+- **Offen:** Schild-Position am Arm und das Menü im Spiel prüfen. Fernkampf (Bogen, Armbrust, Pfeile) kommt in Phase 3.

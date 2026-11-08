@@ -1,35 +1,25 @@
 # Dorfrekruten (vl_recruits)
 
-Heuere Dorfbewohner in VoxeLibre als Rekruten an. Sie folgen dir, halten
-eine Stellung und kämpfen gegen feindliche Mobs.
+Heuere in VoxeLibre Dorfbewohner als Rekruten an. Sie folgen dir, halten eine
+Stellung, kämpfen gegen Monster und lassen sich ausrüsten.
 
 Getestet mit **Luanti 5.17.0** und **VoxeLibre 0.92.3**.
 
-## Bedienung
-- **Anheuern:** Schleichen + Rechtsklick mit Smaragden auf einen erwachsenen
-  Dorfbewohner (Standard: 3 Smaragde, im Kreativmodus gratis).
-  Ohne Schleichen öffnet sich wie gewohnt der Handel.
-- **Folgen / Bleiben:** Rechtsklick auf den eigenen Rekruten (mit leerer Hand
-  oder einem Gegenstand, der keine Ausrüstung ist).
-- **Ausrüsten:** Rechtsklick mit Rüstung oder einem Schwert/einer Axt auf den
-  eigenen Rekruten legt sie an. Ein vorher getragenes Teil bekommst du zurück.
-- **Ausrüstungsmenü:** Schleichen + Rechtsklick auf den eigenen Rekruten zeigt
-  Rüstung, Waffe, Leben und Schaden. Dort kannst du Teile herausnehmen.
-- Rüstung ist sichtbar und senkt den Schaden um 4 % pro Rüstungspunkt (max. 80 %).
-  Die Waffe bestimmt den Angriffsschaden (ohne Waffe: 3).
-- Stirbt oder wird ein Rekrut entlassen, fällt seine Ausrüstung zu Boden.
-- **Chat:** `/rekruten folgen`, `/rekruten bleiben`, `/rekruten liste`,
-  `/rekruten entlassen` (den angeschauten Rekruten wieder zum Dorfbewohner machen).
-- Rekruten greifen Monster an und helfen, wenn du einen Mob schlägst.
-  Spieler, Dorfbewohner und Tiere lassen sie in Ruhe.
+## Kurzanleitung
+- **Anheuern:** Schleichen + Rechtsklick mit 3 Smaragden auf einen Dorfbewohner.
+- **Folgen / Stellung halten:** Rechtsklick mit leerer Hand auf den Rekruten.
+- **Ausrüsten:** Rechtsklick mit Rüstung, Schwert/Axt, Schild, Totem oder Essen.
+- **Ausrüstungsmenü:** Schleichen + Rechtsklick auf den Rekruten.
+- **Chat:** `/rekruten folgen | bleiben | liste | entlassen`
 
-## Einstellungen
-Siehe `settingtypes.txt`: Kosten, Maximum pro Spieler, Teleport-Distanz.
+## Installation
+Diesen Ordner `vl_recruits` in den `mods`-Ordner von Luanti kopieren und die
+Mod in der Welt aktivieren (*Mods auswählen*). Bei LAN-Spielen reicht es, wenn
+die Mod auf dem Rechner mit dem Server installiert ist.
 
-## Entwicklung
-Selbsttest auf einem Testserver: `vl_recruits_selftest = true` setzen, Ergebnis
-steht im Log unter `[vl_recruits selftest]`.
+Die vollständige Anleitung mit allen Funktionen und Einstellungen steht in der
+`README.md` im Hauptordner des Repositories.
 
 ## Lizenz
 Code: MIT. Verhalten angelehnt an „Villager Recruits“, ohne dessen Code oder
-Texturen. Die Rekruten-Optik nutzt zur Laufzeit Texturen und Modelle von VoxeLibre.
+Grafiken. Zur Laufzeit nutzt die Mod Modelle und Texturen von VoxeLibre.
