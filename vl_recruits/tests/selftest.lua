@@ -65,6 +65,44 @@ local function run()
 		"owner/id/order survive staticdata roundtrip")
 	check(r2 and r2.base_texture and r2.base_texture[1] == r.base_texture[1], "skin survives roundtrip")
 
+	-- Equipment: model, armor, weapon.
+	if r2 then
+		check(r2.object:get_properties().mesh == "mcl_armor_character.b3d", "uses the player model")
+		local given = {}
+		local fake_player = {
+			get_player_name = function() return OWNER end,
+			set_wielded_item = function(_, s) given.wield = s end,
+			get_inventory = function() return {add_item = function(_, _, s) given.back = s; return ItemStack() end} end,
+			get_pos = function() return pos end,
+		}
+		local chest = ItemStack("mcl_armor:chestplate_iron")
+		check(core.registered_items["mcl_armor:chestplate_iron"] ~= nil, "iron chestplate exists")
+		check(R.give_item(r2, fake_player, chest), "recruit accepts a chestplate")
+		local fleshy = r2.object:get_armor_groups().fleshy
+		check(fleshy and fleshy < 100, "armor reduces damage (fleshy=" .. tostring(fleshy) .. ")")
+		check(r2.object:get_properties().textures[2] ~= "blank.png", "armor layer textured")
+		check(R.give_item(r2, fake_player, ItemStack("mcl_tools:sword_iron")), "recruit accepts a sword")
+		check(r2.damage > R.BASE_DAMAGE, "sword raises damage to " .. tostring(r2.damage))
+		check(r2._wield_obj and r2._wield_obj:get_attach() == r2.object, "sword shown in hand")
+		check(not R.give_item(r2, fake_player, ItemStack("mcl_core:dirt")), "ignores non-equipment")
+		check(R.give_item(r2, fake_player, ItemStack("mcl_armor:chestplate_diamond"))
+			and given.back and given.back:get_name() == "mcl_armor:chestplate_iron",
+			"swapping armor returns the old piece")
+
+		-- Gear survives unload/reload.
+		local fleshy_before = r2.object:get_armor_groups().fleshy
+		local sd2 = r2:get_staticdata()
+		r2.object:remove()
+		local o3 = core.add_entity(pos, R.ENTITY, sd2)
+		local r3 = o3 and o3:get_luaentity()
+		check(r3 and r3.object:get_armor_groups().fleshy == fleshy_before,
+			"armor groups restored after reload (fleshy=" .. tostring(fleshy_before) .. ")")
+		check(r3 and r3._armor and r3._armor[3] == "mcl_armor:chestplate_diamond", "armor saved in staticdata")
+		check(r3 and r3.damage > R.BASE_DAMAGE, "weapon damage restored after reload")
+		check(r3 and r3._wield_obj ~= nil, "sword shown again after reload")
+		r2 = r3
+	end
+
 	-- Friendly-fire guard.
 	if r2 then
 		local fake_owner = {is_player = function() return true end,
@@ -77,6 +115,12 @@ local function run()
 	if r2 then
 		R.dismiss(r2)
 		check(R.count(OWNER) == 0, "registry empty after dismiss")
+		local drops = 0
+		for _, o in ipairs(core.get_objects_inside_radius(pos, 3)) do
+			local e = o:get_luaentity()
+			if e and e.name == "__builtin:item" then drops = drops + 1 end
+		end
+		check(drops >= 2, "gear dropped on dismiss (" .. drops .. " items)")
 		local back
 		for _, ent in pairs(core.luaentities) do
 			if ent.name == R.VILLAGER and ent._profession == "farmer" then back = ent end

@@ -169,3 +169,12 @@ armor_stand_arms, candles_3d, copper_golem, mcl_bronze_stuff, mcl_copper_stuff, 
 - Statt einer Zählung pro Spieler speichert die Mod-Storage die Rekruten-IDs. Beim Anheuern merkt sich der Rekrut die kompletten Daten des Dorfbewohners. `/rekruten entlassen` stellt ihn mit Beruf und Handel wieder her.
 - Automatischer Selbsttest (Server ohne Fenster): 13/13 bestanden. Geprüft werden Registrierung, Anheuern, Befehle, Speichern über Entladen/Laden, kein Angriff auf den Besitzer und Entlassen.
 - **Offen:** Die manuellen Testfälle 1–9 im Spiel. Dazu gehört besonders: Sieht der Skin gut aus? Wie verhält sich der Rekrut im Kampf? Wie läuft er zurück zur Stellung?
+
+## Stand Phase 2, Teil 1: Ausrüstung (07.11.2026)
+- Modellwechsel: Rekruten nutzen jetzt das Spieler-Modell von VoxeLibre (`mcl_armor_character.b3d`). Der Kopf des Dorfbewohners sitzt per Maske auf einem `mcl_skins`-Körper mit blauem Hemd. Rüstung ist damit wie beim Spieler sichtbar. Die Waffe hängt als Item-Entity am Knochen `Wield_Item`.
+- Rüstung über `mcl_armor` (Inventar-Hooks `create_inventory` / `update_armor`): 4 % weniger Schaden pro Rüstungspunkt, höchstens 80 %.
+- Waffe: Schwert oder Axt, der Schaden kommt aus den Werkzeugwerten des Items.
+- Bedienung: Rechtsklick mit dem Teil legt es an, Schleichen + Rechtsklick öffnet das Ausrüstungsmenü. Bei Tod oder Entlassung fällt die Ausrüstung zu Boden.
+- Rekruten aus Phase 1 werden beim Laden automatisch auf das neue Modell umgestellt.
+- Selbsttest: 28/28 bestanden.
+- **Offen:** Im Spiel prüfen: Optik (Kopf auf dem Spieler-Modell, Haltung des Schwerts), Animationen, Menü. Rüstung nutzt sich noch nicht ab. Essen und Schild kommen später.

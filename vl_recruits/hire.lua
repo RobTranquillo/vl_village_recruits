@@ -81,6 +81,8 @@ function R.dismiss(recruit)
 	local pos = recruit.object:get_pos()
 	local yaw = recruit.object:get_yaw()
 	R.unregister(recruit.owner, recruit._recruit_id)
+	R.drop_equipment(recruit)
+	R.equipment_deactivate(recruit)
 	recruit.object:remove()
 	local villager = core.add_entity(pos, R.VILLAGER, recruit._villager_data)
 	if villager then villager:set_yaw(yaw) end

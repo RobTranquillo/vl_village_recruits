@@ -1,21 +1,41 @@
--- The recruit mob. Built on mcl_mobs; uses the vindicator model (arms + weapon
--- slot + punch animation) with the villager's head masked onto a tinted body.
+-- The recruit mob. Built on mcl_mobs and VoxeLibre's player model
+-- (mcl_armor_character.b3d), which has an armor layer and a Wield_Item bone.
+-- Skin: a plain mcl_skins outfit with the hired villager's head on top.
 local R = vl_recruits
 local S = R.S
 local mob_class = mcl_mobs.mob_class
 
-local WEAPON = "default_tool_steelsword.png"
-local BODY = "mobs_mc_vindicator.png^[colorize:#2b4f86:130"
+local MESH = "mcl_armor_character.b3d"
 local DEFAULT_VILLAGER_SKIN = "mobs_mc_villager.png"
+local FALLBACK_BODY = "mcl_skins_character_1.png"
 local ICON_FOLLOW = "mobs_mc_wolf_icon_roam.png"
 local ICON_STAND = "mobs_mc_wolf_icon_sit.png"
 local TELEPORT_INTERVAL = 1
 local GUARD_RADIUS = 3
 
--- Skin texture: soldier body with the hired villager's head.
+-- Recruit uniform: mcl_skins template without hair/face parts (the villager
+-- head replaces the whole head area), blue shirt, dark trousers.
+local body_texture
+local function get_body()
+	if body_texture then return body_texture end
+	if core.global_exists("mcl_skins") and mcl_skins.template1 and mcl_skins.template1.base then
+		local skin = table.copy(mcl_skins.template1)
+		skin.hair, skin.eye, skin.mouth, skin.headwear, skin.cape = nil, nil, nil, nil, nil
+		skin.top_color = 0xff2b4f86
+		skin.bottom_color = 0xff2e2a26
+		body_texture = mcl_skins.compile_skin(skin)
+	end
+	if not body_texture or body_texture == "" then
+		body_texture = FALLBACK_BODY
+	end
+	return body_texture
+end
+
+-- Player-layout skin with the villager's head. The villager head UV starts at
+-- the same place as the player head; the mask keeps the top 8x8 head part.
 function R.make_skin(villager_skin)
 	villager_skin = villager_skin or DEFAULT_VILLAGER_SKIN
-	return BODY .. "^((" .. villager_skin .. ")^[mask:vl_recruits_head_mask.png)"
+	return "(" .. get_body() .. ")^((" .. villager_skin .. ")^[mask:vl_recruits_head_mask.png)"
 end
 
 local function owner_player(self)
@@ -145,14 +165,23 @@ end
 local function on_rightclick(self, clicker)
 	if not clicker or not clicker:is_player() then return end
 	local name = clicker:get_player_name()
-	local item = clicker:get_wielded_item():get_name()
-	if item == "mcl_mobs:nametag" then
+	local stack = clicker:get_wielded_item()
+	if stack:get_name() == "mcl_mobs:nametag" then
 		-- mcl_mobs already applied the name before calling us.
 		self._custom_name = true
 		return
 	end
 	if name ~= self.owner then
 		core.chat_send_player(name, S("This recruit belongs to @1.", self.owner))
+		return
+	end
+	-- Sneak: open the equipment menu.
+	if clicker:get_player_control().sneak then
+		R.show_equipment(self, clicker)
+		return
+	end
+	-- Holding armor or a weapon: hand it over.
+	if R.give_item(self, clicker, stack) then
 		return
 	end
 	if self.order == "follow" then
@@ -174,26 +203,27 @@ mcl_mobs.register_mob(R.ENTITY, {
 	initial_properties = {
 		hp_min = 20,
 		hp_max = 20,
-		collisionbox = {-0.3, -0.01, -0.3, 0.3, 1.94, 0.3},
+		collisionbox = {-0.3, -0.01, -0.3, 0.3, 1.79, 0.3},
 	},
 	xp_min = 0,
 	xp_max = 0,
 	visual = "mesh",
-	mesh = "mobs_mc_vindicator.b3d",
-	head_swivel = "head.control",
+	mesh = MESH,
+	head_swivel = "Head_Control",
 	head_eye_height = 1.5,
-	head_bone_position = vector.new(0, 2.2, 0),
+	head_bone_position = vector.new(0, 6.3, 0), -- only for Luanti <= 5.8
 	curiosity = 10,
+	-- skin, armor layer, cape
 	textures = {
-		{R.make_skin(), "blank.png", WEAPON},
+		{R.make_skin(), "blank.png", "blank.png"},
 	},
-	visual_size = {x = 2.75, y = 2.75},
+	visual_size = {x = 1, y = 1},
 	makes_footstep_sound = true,
 	sounds = {
 		damage = "mobs_mc_villager_hurt",
 		distance = 10,
 	},
-	damage = 4,
+	damage = R.BASE_DAMAGE,
 	reach = 2,
 	attack_type = "dogfight",
 	attacks_monsters = true,
@@ -212,30 +242,56 @@ mcl_mobs.register_mob(R.ENTITY, {
 	jump = true,
 	pathfinding = 1,
 	drops = {},
+	-- Frames of mcl_armor_character.b3d (see mcl_armor/player.lua)
 	animation = {
-		stand_speed = 25, stand_start = 40, stand_end = 59,
-		walk_speed = 25, walk_start = 0, walk_end = 40,
-		run_speed = 25, run_start = 0, run_end = 40,
-		punch_speed = 25, punch_start = 90, punch_end = 110,
-		die_speed = 15, die_start = 170, die_end = 180, die_loop = false,
+		stand_speed = 30, stand_start = 0, stand_end = 79,
+		walk_speed = 30, walk_start = 168, walk_end = 187,
+		run_speed = 30, run_start = 440, run_end = 459,
+		punch_speed = 30, punch_start = 189, punch_end = 198,
+		die_speed = 15, die_start = 498, die_end = 498, die_loop = false,
 	},
 	on_rightclick = on_rightclick,
 	do_custom = do_custom,
+	after_activate = function(self)
+		-- Older recruits (vindicator model) lose their textures on the mesh
+		-- change; always rebuild the skin from the stored villager skin.
+		self.base_texture = self.base_texture or {}
+		self.base_texture[1] = R.make_skin(self._villager_skin)
+		self.base_texture[2] = self.base_texture[2] or "blank.png"
+		self.base_texture[3] = "blank.png"
+		self.object:set_properties({textures = self.base_texture})
+		R.equipment_activate(self)
+	end,
 	on_die = function(self)
+		R.drop_equipment(self)
+		R.equipment_deactivate(self)
 		R.unregister(self.owner, self._recruit_id)
-		local player = owner_player(self)
-		if player then
+		if owner_player(self) then
 			core.chat_send_player(self.owner, S("One of your recruits has died."))
 		end
 	end,
 })
 
+local def = core.registered_entities[R.ENTITY]
+
 -- Never attack the owner or the owner's other recruits, even when another
 -- player made this recruit aggressive (_aggro makes mcl_mobs target players).
-local def = core.registered_entities[R.ENTITY]
 function def:do_attack(object)
 	if is_friend(self, object) then return end
 	return mob_class.do_attack(self, object)
+end
+
+-- Hooks used by mcl_armor (mcl_util.get_inventory / mcl_armor.update).
+function def:create_inventory()
+	return R.equipment_activate(self)
+end
+
+function def:update_armor(info)
+	R.apply_armor(self, info)
+end
+
+function def:on_deactivate(removal)
+	R.equipment_deactivate(self)
 end
 
 -- Spawn a fresh recruit for owner at pos. villager_data is the villager's
@@ -250,12 +306,14 @@ function R.spawn_recruit(pos, yaw, owner, opts)
 	self._recruit_id = mcl_util.gen_uuid()
 	self._villager_data = opts.villager_data
 	self._villager_skin = opts.skin
-	self.base_texture = {R.make_skin(opts.skin), "blank.png", WEAPON}
+	self.base_texture = {R.make_skin(opts.skin), "blank.png", "blank.png"}
 	obj:set_properties({textures = self.base_texture})
 	if opts.health then
 		self.health = math.min(opts.health, self.object:get_properties().hp_max or 20)
 		obj:set_hp(self.health)
 	end
+	-- The id only exists now; create the equipment inventory for it.
+	R.equipment_activate(self)
 	R.set_order(self, "follow")
 	R.update_nametag(self)
 	R.register(owner, self._recruit_id)

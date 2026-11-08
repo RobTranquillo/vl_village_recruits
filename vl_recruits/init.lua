@@ -17,6 +17,7 @@ vl_recruits = {
 }
 
 dofile(modpath .. "/registry.lua")
+dofile(modpath .. "/equipment.lua")
 dofile(modpath .. "/recruit.lua")
 dofile(modpath .. "/hire.lua")
 dofile(modpath .. "/commands.lua")
