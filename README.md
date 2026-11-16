@@ -78,14 +78,15 @@ erhalten.
 Stellung halten, **Pfeil links-rechts** = Folgen.
 
 ### Chatbefehle
-Sie wirken auf deine eigenen Rekruten im Umkreis von 32 Blöcken.
+Sie wirken auf deine eigenen Rekruten im Umkreis von 32 Blöcken. Jeden Befehl
+gibt es auf Englisch (`/recruits …`) und auf Deutsch (`/rekruten …`).
 
-| Befehl | Wirkung |
-|---|---|
-| `/rekruten folgen` | Alle Rekruten in der Nähe folgen dir. |
-| `/rekruten bleiben` | Alle Rekruten in der Nähe halten ihre Stellung. |
-| `/rekruten liste` | Zeigt, wie viele Rekruten du hast (gesamt, geladen, in der Nähe). |
-| `/rekruten entlassen` | Den Rekruten, den du anschaust, wieder zum Dorfbewohner machen. |
+| Befehl | Deutsch | Wirkung |
+|---|---|---|
+| `/recruits follow` | `/rekruten folgen` | Alle Rekruten in der Nähe folgen dir. |
+| `/recruits stay` | `/rekruten bleiben` | Alle Rekruten in der Nähe halten ihre Stellung. |
+| `/recruits list` | `/rekruten liste` | Zeigt, wie viele Rekruten du hast (gesamt, geladen, in der Nähe). |
+| `/recruits dismiss` | `/rekruten entlassen` | Den Rekruten, den du anschaust, wieder zum Dorfbewohner machen. |
 
 ---
 
@@ -130,6 +131,7 @@ oder direkt in `minetest.conf`:
 | `village_recruits_max_per_player` | 10 | Höchstzahl Rekruten pro Spieler |
 | `village_recruits_teleport_distance` | 16 | Ab dieser Entfernung wird ein folgender Rekrut teleportiert |
 | `village_recruits_selftest` | false | Selbsttest beim Serverstart, nur für die Entwicklung |
+| `village_recruits_convert_vl_recruits` | false | Übernimmt Rekruten aus der Entwicklungsversion `vl_recruits` (nur für solche alten Welten) |
 
 ---
 
@@ -153,13 +155,14 @@ oder direkt in `minetest.conf`:
   ```
   Exit-Code 0 bedeutet, dass alle Prüfungen bestanden sind.
 - Plan und Notizen: `docs/Aufgabe.md` (Deutsch), `docs/PLAN.md` (Englisch)
-- Bis November 2026 hieß die Mod `vl_recruits`. Rekruten aus dieser Zeit werden
-  beim Laden automatisch übernommen. Dafür in der Welt `village_recruits`
-  aktivieren statt `vl_recruits`.
+- Vor der ersten Veröffentlichung hieß die Mod `vl_recruits`. Rekruten aus
+  solchen Welten werden übernommen, wenn `village_recruits_convert_vl_recruits`
+  eingeschaltet ist. Dafür in der Welt `village_recruits` statt `vl_recruits`
+  aktivieren.
 
 ## Lizenz
 
-Code und Textur: MIT, siehe [`LICENSE`](LICENSE). Dort stehen auch die
+Code: MIT, Textur: CC0, siehe [`LICENSE`](LICENSE). Dort stehen auch die
 Hinweise zu KI-Unterstützung und zu den genutzten VoxeLibre-Inhalten.
 
 Das Verhalten ist an die Minecraft-Mod „Villager Recruits“ angelehnt. Code
@@ -180,8 +183,7 @@ A mod for **Luanti** with the game **VoxeLibre**: hire villagers as recruits
 with emeralds. They follow you, guard a position, fight hostile mobs and can be
 equipped with armor, a weapon, a shield, a totem and food.
 
-The in-game texts are available in English and German. The chat commands use
-German words (see below).
+The in-game texts are available in English and German.
 
 Tested with **Luanti 5.17.0** and **VoxeLibre 0.92.3**.
 
@@ -254,16 +256,15 @@ A short icon above the recruit's head shows the new order: **arrow pointing
 down** = hold position, **left-right arrow** = follow.
 
 ### Chat commands
-They affect your own recruits within 32 blocks. The commands are German
-words: *folgen* = follow, *bleiben* = stay, *liste* = list,
-*entlassen* = dismiss.
+They affect your own recruits within 32 blocks. `/rekruten` is a German alias
+(`folgen`, `bleiben`, `liste`, `entlassen`).
 
 | Command | Effect |
 |---|---|
-| `/rekruten folgen` | All recruits nearby follow you. |
-| `/rekruten bleiben` | All recruits nearby hold their position. |
-| `/rekruten liste` | Shows how many recruits you have (total, loaded, nearby). |
-| `/rekruten entlassen` | Turns the recruit you are looking at back into a villager. |
+| `/recruits follow` | All recruits nearby follow you. |
+| `/recruits stay` | All recruits nearby hold their position. |
+| `/recruits list` | Shows how many recruits you have (total, loaded, nearby). |
+| `/recruits dismiss` | Turns the recruit you are looking at back into a villager. |
 
 ---
 
@@ -308,6 +309,7 @@ directly in `minetest.conf`:
 | `village_recruits_max_per_player` | 10 | Maximum number of recruits per player |
 | `village_recruits_teleport_distance` | 16 | A following recruit further away than this is teleported |
 | `village_recruits_selftest` | false | Self test on server start, for development only |
+| `village_recruits_convert_vl_recruits` | false | Converts recruits from the development version `vl_recruits` (only for such old worlds) |
 
 ---
 
@@ -331,14 +333,14 @@ directly in `minetest.conf`:
   ```
   Exit code 0 means all checks passed.
 - Plan and notes: `docs/PLAN.md` (English), `docs/Aufgabe.md` (German)
-- Until November 2026 the mod was called `vl_recruits`. Recruits from that time
-  are converted automatically on load. Enable `village_recruits` in the world
-  instead of `vl_recruits`.
+- Before its first release the mod was called `vl_recruits`. Recruits from such
+  worlds are converted when `village_recruits_convert_vl_recruits` is enabled.
+  Enable `village_recruits` in the world instead of `vl_recruits`.
 
 ## License
 
-Code and texture: MIT, see [`LICENSE`](LICENSE), which also contains the notes
-on AI assistance and on the VoxeLibre assets used.
+Code: MIT, texture: CC0, see [`LICENSE`](LICENSE), which also contains the
+notes on AI assistance and on the VoxeLibre assets used.
 
 The behaviour is inspired by the Minecraft mod "Villager Recruits". No code or
 graphics from it are included. At runtime the mod uses models and textures from

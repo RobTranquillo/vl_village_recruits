@@ -9,3 +9,7 @@ village_recruits_teleport_distance (Teleport distance) int 16 6 64
 
 # Runs a self test after server start and logs the result (for development).
 village_recruits_selftest (Run self test on startup) bool false
+
+# Converts recruits from the pre-release development version (mod name
+# "vl_recruits") when a world is loaded. Only needed for such old worlds.
+village_recruits_convert_vl_recruits (Convert recruits from vl_recruits) bool false

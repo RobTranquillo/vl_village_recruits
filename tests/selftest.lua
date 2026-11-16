@@ -204,7 +204,18 @@ local function run()
 		end
 		check(back ~= nil, "villager restored with profession")
 	end
-	-- Recruits saved under the old mod name are converted on load.
+	-- Chat commands: English and German alias.
+	check(core.registered_chatcommands["recruits"] ~= nil, "/recruits registered")
+	check(core.registered_chatcommands["rekruten"] ~= nil, "/rekruten alias registered")
+	check(R.chat_actions.follow and R.chat_actions.stay and R.chat_actions.list
+		and R.chat_actions.dismiss, "follow/stay/list/dismiss actions exist")
+
+	-- Recruits saved under the old mod name are converted on load (opt-in).
+	if not core.settings:get_bool("village_recruits_convert_vl_recruits", false) then
+		check(core.registered_entities["vl_recruits:recruit"] == nil,
+			"no vl_ entity registered without the conversion setting")
+		return finish()
+	end
 	local old = core.add_entity(pos, "vl_recruits:recruit", core.serialize({
 		owner = OWNER, _recruit_id = "old-recruit-1", order = "stand",
 		_weapon = "mcl_tools:sword_iron",

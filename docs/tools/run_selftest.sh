@@ -17,6 +17,7 @@ load_mod_village_recruits = mods/village_recruits
 WORLD
 cat > "$TMP/test.conf" <<'CONF'
 village_recruits_selftest = true
+village_recruits_convert_vl_recruits = true
 server_announce = false
 CONF
 timeout 180 "$LUANTI" --server --world "$TMP/world" --gameid mineclone2 \

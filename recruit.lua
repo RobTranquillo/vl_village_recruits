@@ -275,9 +275,12 @@ mcl_mobs.register_mob(R.ENTITY, {
 
 local def = core.registered_entities[R.ENTITY]
 
--- Until 2026-11 the mod was called "vl_recruits". Recruits saved under the old
--- entity name are converted on load (keeps owner, orders and equipment).
-mcl_mobs.register_conversion(":vl_recruits:recruit", R.ENTITY)
+-- Before its first release the mod was called "vl_recruits". Only worlds from
+-- that development version need this, so it is off by default (and keeps the
+-- package out of VoxeLibre's "vl_" namespace unless explicitly enabled).
+if core.settings:get_bool("village_recruits_convert_vl_recruits", false) then
+	mcl_mobs.register_conversion(":vl_recruits:recruit", R.ENTITY)
+end
 
 -- Never attack the owner or the owner's other recruits, even when another
 -- player made this recruit aggressive (_aggro makes mcl_mobs target players).

@@ -1,4 +1,5 @@
--- Chat commands: /rekruten <folgen|bleiben|liste|entlassen>
+-- Chat commands: /recruits <follow|stay|list|dismiss>
+-- German alias:  /rekruten <folgen|bleiben|liste|entlassen>
 local R = village_recruits
 local S = R.S
 
@@ -21,26 +22,26 @@ end
 
 local actions = {}
 
-function actions.folgen(name, player)
+function actions.follow(name, player)
 	local list = R.active_recruits(name, player:get_pos(), RADIUS)
 	for _, r in ipairs(list) do R.set_order(r, "follow") end
 	return true, S("@1 recruits follow you.", #list)
 end
 
-function actions.bleiben(name, player)
+function actions.stay(name, player)
 	local list = R.active_recruits(name, player:get_pos(), RADIUS)
 	for _, r in ipairs(list) do R.set_order(r, "stand") end
 	return true, S("@1 recruits hold their position.", #list)
 end
 
-function actions.liste(name, player)
+function actions.list(name, player)
 	local nearby = R.active_recruits(name, player:get_pos(), RADIUS)
 	local loaded = R.active_recruits(name)
 	return true, S("Recruits: @1 total, @2 loaded, @3 nearby.",
 		R.count(name), #loaded, #nearby)
 end
 
-function actions.entlassen(name, player)
+function actions.dismiss(name, player)
 	local ent = looked_at_recruit(player, name)
 	if not ent then
 		return false, S("Look at one of your recruits to dismiss it.")
@@ -49,16 +50,34 @@ function actions.entlassen(name, player)
 	return true, S("The recruit was dismissed and is a villager again.")
 end
 
-core.register_chatcommand("rekruten", {
-	params = "folgen | bleiben | liste | entlassen",
+-- German words map to the same actions.
+local aliases = {folgen = "follow", bleiben = "stay", liste = "list", entlassen = "dismiss"}
+
+local function run(name, param, usage)
+	local player = core.get_player_by_name(name)
+	if not player then return false, S("Only for players in the game.") end
+	param = param:trim():lower()
+	local action = actions[aliases[param] or param]
+	if not action then
+		return false, usage
+	end
+	return action(name, player)
+end
+
+R.chat_actions = actions
+
+core.register_chatcommand("recruits", {
+	params = "follow | stay | list | dismiss",
 	description = S("Command your recruits"),
 	func = function(name, param)
-		local player = core.get_player_by_name(name)
-		if not player then return false, S("Only for players in the game.") end
-		local action = actions[param:trim()]
-		if not action then
-			return false, S("Usage: /rekruten folgen | bleiben | liste | entlassen")
-		end
-		return action(name, player)
+		return run(name, param, S("Usage: /recruits follow | stay | list | dismiss"))
+	end,
+})
+
+core.register_chatcommand("rekruten", {
+	params = "folgen | bleiben | liste | entlassen",
+	description = S("Command your recruits (German alias of /recruits)"),
+	func = function(name, param)
+		return run(name, param, "Verwendung: /rekruten folgen | bleiben | liste | entlassen")
 	end,
 })
